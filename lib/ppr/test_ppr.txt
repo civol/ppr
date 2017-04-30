@@ -47,7 +47,7 @@ print_string "Hello world##Surprise";;
    * num.to_i
 .end
 .def repp(word,num) :< word + word + word
-.load :< "test_rpp.inc"
+.load :< "test_ppr.inc"
 
 Multiple times He##Wo in different programming languages
 ###############################################################

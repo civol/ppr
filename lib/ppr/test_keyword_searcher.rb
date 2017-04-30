@@ -28,7 +28,7 @@ $keywords.each.with_index do |keyword,i|
 end
 
 # Prepare the expected result.
-$expected = [ [0,[33,38]], [0,[63,68]], [1,[94,100]], [2,[107,108]],[2,[224,225]] ]
+$expected = [ [0,33..38], [0,63..68], [1,94..100], [2,107..108],[2,224..225] ]
 
 
 # Interate over the keywords founds in the text.
@@ -36,8 +36,8 @@ ok = true
 $searcher.each_in($input).with_index do |entry_range, i|
     entry, range = *entry_range
     print "Got entry=#{entry} (#{$keywords[entry]}) at range=#{range}..."
-    unless $input[range[0]..range[1]] == $keywords[entry] then
-        puts "\nError: at range=#{range} there is #{$input[range[0]..range[1]]}"
+    unless $input[range] == $keywords[entry] then
+        puts "\nError: at range=#{range} there is #{$input[range]}"
         ok = false
     end
     unless [entry,range] == $expected[i] then

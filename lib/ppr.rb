@@ -1,4 +1,5 @@
 require "ppr/version"
+require "ppr/ppr_core"
 
 ## Module including the classes implementing the preprocessor in Ruby.
 #
