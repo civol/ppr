@@ -1,0 +1,61 @@
+ASSIGN F ~> "File"
+RUBY
+    ~>"# #{@F} for testing Ppr"
+ENDM
+
+
+MACRO HW
+    ~>"#{@hello} world!"
+ENDM
+
+MACRO He
+    ~>"Hello "
+ENDM
+
+MACRO Wo
+    ~>"world!"
+ENDM
+
+MACRO Surprise
+   ~>"!"
+ENDM
+
+RUBYR
+    ~>"HW in different programming languages\n"
+ENDM
+###############################################################
+
+* In BASIC:
+PRINT "HW":
+
+* In Scheme:
+(write 'He@@world!)
+
+* In OCaml:
+print_string "Hello world@@Surprise";;
+
+
+MACRO rep(word,num)
+   ~> word \
+   * num.to_i
+ENDM
+MACRO repp(word,num) ~> word + word + word
+MACRO_R repr(word,num)
+   ~> word
+   num = num.to_i - 1
+   if num > 0 then
+      ~> "repr(#{word},#{num})"
+   end
+ENDM
+
+Multiple times He@@Wo in different programming languages
+###############################################################
+
+* In BASIC:
+rep(PRINT "Hello world!": ,3)
+
+* In Scheme:
+repp((write 'HW\) ,3)
+
+* In OCaml:
+repr(print_string "HW";; ,3)

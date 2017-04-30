@@ -1,0 +1,62 @@
+.assign F :< "File"
+.do
+    :< "# #{@F} for testing Ppr"
+.end
+
+
+.if :< true
+.def HW
+    :<"#{@hello} world!"
+.end
+.endif
+
+.if :<false
+:< "Should not happen!"
+.else
+.def He
+    :<"Hello "
+.end
+.endif
+
+.def Wo
+    :<"world!"
+.end
+
+.def Surprise
+   :<"!"
+.end
+
+.doR
+:< "HW in different programming languages\n"
+.end
+.require :< "bar.inc"
+.require :< "bar.inc"
+
+* In BASIC:
+PRINT "HW":
+
+* In Scheme:
+(write 'He##world!)
+
+* In OCaml:
+print_string "Hello world##Surprise";;
+
+
+.def rep(word,num)
+   :< word \
+   * num.to_i
+.end
+.def repp(word,num) :< word + word + word
+.load :< "test_rpp.inc"
+
+Multiple times He##Wo in different programming languages
+###############################################################
+
+* In BASIC:
+rep(PRINT "Hello world!": ,3)
+
+* In Scheme:
+repp((write 'HW\) ,3)
+
+* In OCaml:
+repr(print_string "HW";; ,3)

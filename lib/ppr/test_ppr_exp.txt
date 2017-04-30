@@ -1,0 +1,31 @@
+# File for testing Ppr
+
+
+
+
+
+Hello world! in different programming languages
+###############################################################
+
+* In BASIC:
+PRINT "Hello world!":
+
+* In Scheme:
+(write 'Hello world!)
+
+* In OCaml:
+print_string "Hello world!";;
+
+
+
+Multiple times Hello world! in different programming languages
+###############################################################
+
+* In BASIC:
+PRINT "Hello world!": PRINT "Hello world!": PRINT "Hello world!": 
+
+* In Scheme:
+(write 'Hello world!) (write 'Hello world!) (write 'Hello world!) 
+
+* In OCaml:
+print_string "Hello world!";; print_string "Hello world!";; print_string "Hello world!";; 
