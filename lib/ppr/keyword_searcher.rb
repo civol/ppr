@@ -2,11 +2,12 @@
 ##              Map class for searching keywords in a text.         ##
 ######################################################################
 
-
+##
+# Tool for looking for keywords within a string.
 class KeywordSearcher
 
-    ## Creates a new keyword searcher, where words are between +seperators+
-    #  regular expressions.
+    # Creates a new keyword searcher, where words are between +seperators+
+    # regular expressions.
     def initialize(separator = "")
         # Checks and set the separator.
         @separator = Regexp.new(separator).to_s
@@ -25,7 +26,7 @@ class KeywordSearcher
         return self
     end
 
-    ## Adds a +keyword+ to the searcher associated with an +object+.
+    # Adds a +keyword+ to the searcher associated with an +object+.
     def []=(keyword,object)
         # Ensure the keyword is a valid string.
         keyword = keyword.to_str
@@ -41,17 +42,17 @@ class KeywordSearcher
         @keyword_extract = Regexp.new(@keywords.join("|"))
     end
 
-    ## Get the object corresponding to +keyword+.
+    # Get the object corresponding to +keyword+.
     def [](keyword)
         return @map[keyword.to_s]
     end
 
-    ## Search a keyword inside a +text+ and return the corresponding object
-    #  if found with the range in the string where it has been found.
+    # Search a keyword inside a +text+ and return the corresponding object
+    # if found with the range in the string where it has been found.
     #
-    #  If a keyword is in +skip+ it s ignored.
+    # If a keyword is in +skip+ it s ignored.
     #
-    #  NOTE: the first found object is returned.
+    # NOTE: the first found object is returned.
     def find(text,skip = [])
         # print "skip=#{skip} @keywords=#{@keywords}\n"
         # Compute the regular expression for finding the keywords.
@@ -78,13 +79,13 @@ class KeywordSearcher
         end
     end
 
-    ## Search each keyword inside a +text+ and apply the block on the
-    #  corresponding objects if found with the range in the string where it
-    #  has been found.
+    # Search each keyword inside a +text+ and apply the block on the
+    # corresponding objects if found with the range in the string where it
+    # has been found.
     #
-    #  Returns an enumerator if no block is given.
+    # Returns an enumerator if no block is given.
     #
-    #  NOTE: keywords included into a longer one are ignored.
+    # NOTE: keywords included into a longer one are ignored.
     def each_in(text)
         return to_enum(:each_in,text) unless block_given?
         # Check and clone the text to avoid side effects.

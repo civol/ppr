@@ -8,38 +8,42 @@ require "ppr/keyword_searcher.rb"
 module Ppr
 
 
-    ## Converts a +name+ to an attribute symbol.
+    ## 
+    # Converts a +name+ to an attribute symbol.
     def Ppr.to_attribute(name)
         name = name.to_s
         (name.start_with?("@") ? name : "@" + name).to_sym
     end
 
-## Describes a storage for line number
+##
+# Describes a storage for line number
 class LineNumber < SimpleDelegator
-    ## Creates a new storage for line number +num+.
+    # Creates a new storage for line number +num+.
     def initialize(num)
         super(num.to_i)
     end
 
-    ## Sets the line number to +num+.
+    # Sets the line number to +num+.
     def set(num)
         __setobj__(num.to_i)
     end
 end
 
 
-## Describes a macro of the ruby preprocessor.
+##
+# Describes a macro of the ruby preprocessor.
 class Macro
 
-    ## The name of the macro.
+    # The name of the macro.
     attr_reader :name
 
-    ## Creates a new macro named +name+, starting at line number +num+,
-    #  generated from preprocessor +ppr+ and with possible +variables+.
-    #  
-    #  The +expand+ strings can be redefined through keyword arguments.
-    #  The +final+ flag indicates that the result of the macro expansion
-    #  shall not be preprocessed again.
+    # Creates a new macro named +name+, starting at line number +num+,
+    # generated from preprocessor +ppr+ and with possible +variables+.
+    #
+    # Other parameters:
+    # +expand+:: used to redefine the expand operator
+    # +final+:: indicates that the result of the macro expansion
+    # shall not be preprocessed again.
     def initialize(name, num, ppr, *variables, expand: ":<", final: true)
         # Check and set the name.
         @name = name.to_str
@@ -82,13 +86,13 @@ class Macro
             #}}} This comment is just to avoid confusing the text editor.
     end
 
-    ## Tells if the maco expansion result is final (i.e. it is not preprocessed
-    #  again) or not.
+    # Tells if the maco expansion result is final (i.e., it is not preprocessed
+    # again) or not.
     def final?
         return @final
     end
 
-    ## Adds a +line+ to the macro.
+    # Adds a +line+ to the macro.
     def add(line)
         # Process the line.
         # Remove the ending newline if any.
@@ -96,13 +100,13 @@ class Macro
     end
     alias << add
 
-    ## Checks if the macro is empty (no code line yet).
+    # Checks if the macro is empty (no code line yet).
     def empty?
         return @lines.empty?
     end
 
-    ## Generates the code of the macro invoked at line number +i_number+
-    #  using +values+ for the variables.
+    # Generates the code of the macro invoked at line number +i_number+
+    # using +values+ for the variables.
     def generate(i_number,*values)
         # First generate a variable for the resulting text.
         result = "result_"
@@ -140,13 +144,13 @@ class Macro
 
     # Methods used by apply for handling exception messages.
     
-    ## Regular expression for identifying a line number inside an exception
-    #  message
+    # Regular expression for identifying a line number inside an exception
+    # message.
     E_NUMBER = /:[1-9][0-9]*:/ 
-    ## Type of exception which correspond to a macro execution.
+    # Type of exception which correspond to a macro execution.
     E_TYPE = /\(eval\)\s*/
     
-    ## Tells if an exception +message+ includes a line number.
+    # Tells if an exception +message+ includes a line number.
     def e_number(message)
         found = E_NUMBER.match(message)
         if found then
@@ -158,12 +162,12 @@ class Macro
         end
     end
 
-    ## Tells if an exception message is of a given +type+.
+    # Tells if an exception message is of a given +type+.
     def e_type?(message,type)
         return message =~ Regexp.new(type)
     end
 
-    ## Shifts the line number inside an exception +message+ by +sh+.
+    # Shifts the line number inside an exception +message+ by +sh+.
     def e_shift_number(message,sh)
         # Edit the message to fix the line number and raise then.
         return message.gsub(E_NUMBER) { |str|
@@ -181,8 +185,8 @@ class Macro
         }
     end
 
-    ## Update an exception +message+ to refer macro +name+ invoked at line
-    #  number +i_number+ and adds a possible macro line +number+.
+    # Update an exception +message+ to refer macro +name+ invoked at line
+    # number +i_number+ and adds a possible macro line +number+.
     def Macro.e_message(name, message, i_number, number = nil)
         result = "Ppr error (#{name}:#{i_number})"
         result << ":#{number}: " if number
@@ -190,13 +194,13 @@ class Macro
         return result
     end
 
-    ## Update an exception +message+ to refer the macro invoked at line number
-    #  +i_number+ and adds a possible macro line +number+.
+    # Update an exception +message+ to refer the macro invoked at line number
+    # +i_number+ and adds a possible macro line +number+.
     def e_message(message, i_number, number = nil)
         Macro.e_message(@name,message,i_number,number)
     end
 
-    ## Applies the macro invoked at line number +i_number+ with +arguments+.
+    # Applies the macro invoked at line number +i_number+ with +arguments+.
     def apply(i_number,*arguments)
         # Generate the code of the macro.
         code = self.generate(i_number,*arguments)
@@ -261,20 +265,22 @@ class Macro
 end
 
 
-## Describes an assignment macro of the ruby preprocessor.
+## 
+# Describes an assignment macro of the ruby preprocessor.
 class Assign < Macro
-    ## Creates a new assignment macro whose assigned variable is +var+,
-    #  starting at line number +num+ generated from preprocessor +ppr+.
-    #  
-    #  The +expand+ strings be redefined through keyword arguments.
+    # Creates a new assignment macro whose assigned variable is +var+,
+    # starting at line number +num+ generated from preprocessor +ppr+.
+    # 
+    # Other parameters:
+    # +expand+:: redefines the expand operator string.
     def initialize(name, num, ppr, expand: ":<")
         super(name,num,ppr,expand: expand)
         # Creates the attribute which will be assigned.
         @var_sym = Ppr.to_attribute(name)
     end
 
-    ## Applies the macro invoked at line number +i_number+,
-    #  its result in assigned to the class variable.
+    # Applies the macro invoked at line number +i_number+,
+    # its result in assigned to the class variable.
     def apply(i_number)
         # Expands the macro.
         line = super(i_number)
@@ -285,17 +291,18 @@ class Assign < Macro
     end
 end
 
-## Descibes an abstract class for loading or requiring files.
+## 
+# Descibes an abstract class for loading or requiring files.
 class LoadRequire < Macro
-    ## Creates a new load or require macro starting at line number +num+
-    #  generated from preprocessor +ppr+.
-    #  
-    #  The +expand+ strings be redefined through keyword arguments.
+    # Creates a new load or require macro starting at line number +num+
+    # generated from preprocessor +ppr+.
+    # 
+    # The +expand+ strings be redefined through keyword arguments.
     def initialize(num, ppr, expand: ":<")
         super("",num,ppr,expand: expand)
     end
 
-    ## Loads and preprocess file +name+.
+    # Loads and preprocess file +name+.
     def loadm(name)
         output = StringIO.new("")
         # print "name=#{name}\n"
@@ -306,10 +313,11 @@ class LoadRequire < Macro
     end
 end
 
-## Describes a macro loading and pasting a file into the current one.
+##
+# Describes a macro loading and pasting a file into the current one.
 class Load < LoadRequire
-    ## Applies the macro invoked at line number +i_number+,
-    #  its result is the name of the file to be loaded.
+    # Applies the macro invoked at line number +i_number+,
+    # its result is the name of the file to be loaded.
     def apply(i_number)
         # Expand the macro, its result is the name of the file to load.
         name = super(i_number)
@@ -320,13 +328,13 @@ class Load < LoadRequire
     end
 end
 
-## Describes a macro loading and pasting a file into the current one
-#  only if it has not already been loaded before.
+# Describes a macro loading and pasting a file into the current one
+# only if it has not already been loaded before.
 class Require < LoadRequire
     @@required = [] # The already required files.
 
-    ## Applies the macro invoked at line number +i_number+,
-    #  its result is the name of the file to be loaded if not already loaded.
+    # Applies the macro invoked at line number +i_number+,
+    # its result is the name of the file to be loaded if not already loaded.
     def apply(i_number)
         # Expand the macro, its result is the name of the file to load.
         name = super(i_number)
@@ -343,36 +351,38 @@ class Require < LoadRequire
     end
 end
 
-## Describes a conditional macro.
+##
+# Describes a conditional macro.
 class If < Macro
-    ## Creates a new load or require macro starting at line number +num+
-    #  generated from preprocessor +ppr+.
-    #  
-    #  The +expand+ strings be redefined through keyword arguments.
+    # Creates a new load or require macro starting at line number +num+
+    # generated from preprocessor +ppr+.
+    # 
+    # The +expand+ strings be redefined through keyword arguments.
     def initialize(num, ppr, expand: ":<")
         super("",num,ppr,expand: expand)
     end
 end
 
 
-## Describes the ruby preprocessor.
+##
+# Describes the ruby preprocessor.
 #
-#  Usage:
+# Usage:
 #         ppr = Ppr::Preprocessor.new(<some options>)
 #         ppr.preprocess(<some input stream>, <some output stream>)
 class Preprocessor
 
-    ## Creates a new preprocessor, where +apply+, +applyR+, +define+, +defineR+,
-    #  +assign+, +loadm+, +requirem+, +ifm+, +elsem+ and +endm+ are the
-    #  keywords defining the beginings and end of a macro definitions,
-    #  and where +separator+ is the regular expression used for
-    #  separating macro references to the remaining of the code, +expand+ is
-    #  the string representing the expansion operator of the macro, +glue+ is
-    #  string used for glueing a macro expension to the text,
-    #  +escape+ is the escape character.
+    # Creates a new preprocessor, where +apply+, +applyR+, +define+, +defineR+,
+    # +assign+, +loadm+, +requirem+, +ifm+, +elsem+ and +endm+ are the
+    # keywords defining the beginings and end of a macro definitions,
+    # and where +separator+ is the regular expression used for
+    # separating macro references to the remaining of the code, +expand+ is
+    # the string representing the expansion operator of the macro, +glue+ is
+    # string used for glueing a macro expension to the text,
+    # +escape+ is the escape character.
     #
-    #  Assigned parameters can be added through +param+ to be used within 
-    #  the macros of the preprocessed text.
+    # Assigned parameters can be added through +param+ to be used within 
+    # the macros of the preprocessed text.
     def initialize(params = {},
                    apply: ".do", applyR: ".doR", 
                    define: ".def", defineR: ".defR",
@@ -447,27 +457,27 @@ class Preprocessor
 
     # Methods for handling the execution context of the macros.
 
-    ## Executes a macro in a safe context.
+    # Executes a macro in a safe context.
     def run(&proc)
         @generator.run do |__stream__|
             @context.instance_exec(__stream__,&proc) 
         end
     end
 
-    ## Sets parameter +param+ to +value+.
+    # Sets parameter +param+ to +value+.
     def parameter_set(param,value)
         # print "Setting #{Ppr.to_attribute(param)} with #{value.to_s}\n"
         @context.instance_variable_set(Ppr.to_attribute(param),value.to_s)
     end
 
-    ## Gets the value of parameter +param.
+    # Gets the value of parameter +param.
     def parameter_get(param)
         return @context.instance_variable_get(Ppr.to_attribute(param))
     end
 
     # Methods for parsing the lines.
     
-    ## Restores a +string+ whose begining may have been glued.
+    # Restores a +string+ whose begining may have been glued.
     def unglue_front(string)
         if string.start_with?(@glue) then
             # There is a glue, so remove it.
@@ -479,7 +489,7 @@ class Preprocessor
         return string
     end
 
-    ## Restores a +string+ whose ending may have been glued.
+    # Restores a +string+ whose ending may have been glued.
     def unglue_back(string)
         if string.end_with?(@glue) then
             # There is a glue, so remove it.
@@ -491,8 +501,7 @@ class Preprocessor
         return string
     end
 
-    ## Gest the range of an argument starting
-    #  from offset +start+ of +line+.
+    # Gets the range of an argument starting at offset +start+ in +line+.
     def get_argument_range(line, start)
         if start >= line.size then
             raise "incomplete arguments in macro call."
@@ -501,8 +510,9 @@ class Preprocessor
         return (range[0]+start)..(range[1]+start-1)
     end
 
-    ## Iterates over the range each argument of a +line+ from offset +start+.
-    #  NOTE: keywords included into a longer one are ignored.
+    # Iterates over the range each argument of a +line+ from offset +start+.
+    #
+    # NOTE: keywords included into a longer one are ignored.
     def each_argument_range(line,start)
         return to_enum(:each_argument_range,line,start) unless block_given?
         begin
@@ -519,22 +529,22 @@ class Preprocessor
     end
 
 
-    ## Tells if a line corresponds to an end keyword.
+    # Tells if a line corresponds to an end keyword.
     def is_endm?(line)
         @endm.match(line)
     end
 
-    ## Tells if a line corresponds to an else keyword.
+    # Tells if a line corresponds to an else keyword.
     def is_elsem?(line)
         @elsem.match(line)
     end
 
-    ## Tells if a line corresponds to an endif keyword.
+    # Tells if a line corresponds to an endif keyword.
     def is_endifm?(line)
         @endifm.match(line)
     end
 
-    ## Extract a macro definition from a +line+ if there is one.
+    # Extract a macro definition from a +line+ if there is one.
     def get_macro_def(line)
         line = line.strip
         # Locate and identify the macro keyword.
@@ -613,9 +623,9 @@ class Preprocessor
     end
 
 
-    ## Apply recursively each element of +macros+ to +line+.
+    # Applies recursively each element of +macros+ to +line+.
     #
-    #  NOTE: a same macro is apply only once in a portion of the line.
+    # NOTE: a same macro is apply only once in a portion of the line.
     def apply_macros(line)
         # print "apply_macros on line=#{line}\n"
 
@@ -677,10 +687,10 @@ class Preprocessor
         return expanded
     end
 
-    ## Close a +macro+ being input registering it if named or applying it
-    #  otherwise.
+    # Close a +macro+ being input registering it if named or applying it
+    # otherwise.
     #  
-    #  NOTE: for internal use only.
+    # NOTE: for internal use only.
     def close_macro(macro)
         # Is the macro named?
         unless macro.name.empty? or macro.is_a?(Assign) then
@@ -717,8 +727,8 @@ class Preprocessor
     end
     private :close_macro
 
-    ## Preprocess an +input+ stream and write the result to an +output+
-    #  stream.
+    # Preprocess an +input+ stream and write the result to an +output+
+    # stream.
     def preprocess(input, output)
         # # The current list of macros.
         # @macros = KeywordSearcher.new(@separator)

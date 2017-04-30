@@ -1,9 +1,10 @@
 require "ppr/version"
 require "ppr/ppr_core"
 
-## Module including the classes implementing the preprocessor in Ruby.
+##
+# Module including the classes implementing the preprocessor in Ruby.
 #
-#  Usage:
+# Usage:
 #    ppr = Ppr::Preprocessor.new(<some options>) 
 #    ppr.preprocess(<input stream to preprocess>,
 #                   <output stream where to write the preprocessing result>)}

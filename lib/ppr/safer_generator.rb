@@ -5,24 +5,24 @@
 ######################################################################
 
 
-## Class which allows to safely execute a proc which generate safely
-#  a string into a stream.
+# Tool for executing in a safer sandbox a proc that generates a string into a
+# stream.
 class SaferGenerator
 
-    ## The exception raised when the safer processed failed.
+    # The exception raised when the safer processed failed.
     class SaferException < RuntimeError
     end
 
-    ## The list of dangerous constants of Object.
+    # The list of dangerous constants of Object.
     DANGER_CONSTANTS = [ :File, :IO, :Dir ]
 
-    ## The list of dangerous methods of Kernel
+    # The list of dangerous methods of Kernel
     DANGER_METHODS  = [ :system, :`, :open ]
 
 
-    ## Creates a new safe context with while removing Kernel methods and
-    #  constants from +black_list+ in addition to the default dangerous
-    #  ones.
+    # Creates a new safe context with while removing Kernel methods and
+    # constants from +black_list+ in addition to the default dangerous
+    # ones.
     def initialize(*black_list)
         # Set the black list of methods.
         @black_methods = black_list.select do |symbol|
@@ -34,10 +34,10 @@ class SaferGenerator
         end
     end
 
-    ## Strips all the Kernel methods and constants appart from the
-    #  elements of the white list.
-    #  Also strip Object from dangerous methods and constants apart
-    #  from the elements of the white list.
+    # Strips all the Kernel methods and constants appart from the
+    # elements of the white list.
+    # Also strip Object from dangerous methods and constants apart
+    # from the elements of the white list.
     def secure
         # Gather the methods to strip.
         methods = DANGER_METHODS + @black_methods
@@ -54,9 +54,9 @@ class SaferGenerator
     end
 
 
-    ## Executes +block+ in a safe context for  generating text into a +stream+.
+    # Executes +block+ in a safe context for  generating text into a +stream+.
     #
-    #  If no stream is given, returns the result as a string instead.
+    # If no stream is given, returns the result as a string instead.
     def run(stream = nil, &block)
         unless stream
             # No stream given
