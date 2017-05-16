@@ -37,10 +37,10 @@ Or install it yourself as:
 
 ### using Ppr
 
-You can use Ppr in a ruby program by including `ppr.rb` in your ruby file:
+You can use Ppr in a ruby program by loading `ppr.rb` in your ruby file:
 
 ```ruby
-include 'ppr.rb'
+require 'ppr.rb'
 ```
 
 Then, build a new preprocessor by instantiating `Ppr::Preprocessor` as follows:
