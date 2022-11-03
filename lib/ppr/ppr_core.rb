@@ -532,17 +532,17 @@ class Preprocessor
 
     # Tells if a line corresponds to an end keyword.
     def is_endm?(line)
-        @endm.match(line)
+        @endm.match(line.strip)
     end
 
     # Tells if a line corresponds to an else keyword.
     def is_elsem?(line)
-        @elsem.match(line)
+        @elsem.match(line.strip)
     end
 
     # Tells if a line corresponds to an endif keyword.
     def is_endifm?(line)
-        @endifm.match(line)
+        @endifm.match(line.strip)
     end
 
     # Extract a macro definition from a +line+ if there is one.
