@@ -4,6 +4,7 @@
 
 require "ppr/safer_generator.rb"
 require "ppr/keyword_searcher.rb"
+require 'delegate'
 
 module Ppr
 
