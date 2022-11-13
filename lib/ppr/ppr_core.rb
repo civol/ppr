@@ -4,6 +4,7 @@
 
 require "ppr/safer_generator.rb"
 require "ppr/keyword_searcher.rb"
+require 'delegate'
 
 module Ppr
 
@@ -302,11 +303,26 @@ class LoadRequire < Macro
         super("",num,ppr,expand: expand)
     end
 
+    def set_locations(locations)
+        @locations = locations
+    end
+
+    def find_file(name)
+        @locations.each do |i|
+          filepath =  i + "/" + name
+          if File.exist?(filepath)
+            return filepath
+          end
+        end
+
+        raise "File #{name} was not found in includes."
+    end
+
     # Loads and preprocess file +name+.
     def loadm(name)
         output = StringIO.new("")
         # print "name=#{name}\n"
-        File.open(name,"r") do |input|
+        File.open(find_file(name),"r") do |input|
             @ppr.preprocess(input,output)
         end
         return output.string
@@ -392,7 +408,8 @@ class Preprocessor
                    endm: ".end",
                    expand: ":<",
                    separator: /^|[^\w]|$/, glue: "##",
-                   escape: "\\")
+                   escape: "\\",
+                   includes: Dir.pwd)
         # Check and Initialize the keywords
         # NOTE: since there are a lot of checks, use a generic but
         # harder to read code.
@@ -453,6 +470,10 @@ class Preprocessor
         params.each do |k,v|
             parameter_set(k,v)
         end
+
+        #include folder locations to search for load and require
+        @includes = []
+        (@includes << includes).flatten!
     end
 
     # Methods for handling the execution context of the macros.
@@ -531,17 +552,17 @@ class Preprocessor
 
     # Tells if a line corresponds to an end keyword.
     def is_endm?(line)
-        @endm.match(line)
+        @endm.match(line.strip)
     end
 
     # Tells if a line corresponds to an else keyword.
     def is_elsem?(line)
-        @elsem.match(line)
+        @elsem.match(line.strip)
     end
 
     # Tells if a line corresponds to an endif keyword.
     def is_endifm?(line)
-        @endifm.match(line)
+        @endifm.match(line.strip)
     end
 
     # Extract a macro definition from a +line+ if there is one.
@@ -606,8 +627,10 @@ class Preprocessor
             macro = Assign.new(name,@number,self,expand: @expand)
         when @loadm then
             macro = Load.new(@number,self,expand: @expand)
+            macro.set_locations(@includes)
         when @requirem then
             macro = Require.new(@number,self,expand: @expand)
+            macro.set_locations(@includes)
         when @ifm then
             macro = If.new(@number,self,expand: @expand)
         else
