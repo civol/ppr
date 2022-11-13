@@ -149,7 +149,7 @@ $success &= test_preprocessor_exception($ppr,
 print "... Undefined symbol in macro code... "
 $success &= test_preprocessor_exception($ppr, 
                         "\n.def HE(name)\n :< foobar \n.end\nHE(Foo)",
-                        "HE:5):2: undefined local variable or method")
+                        "HE:5):3: undefined local variable or method")
 
 
 # puts "\nBuilding a preprocessor with an invalid escape character."
