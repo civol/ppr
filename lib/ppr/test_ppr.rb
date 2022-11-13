@@ -3,6 +3,7 @@
 ######################################################################
 
 require "ppr.rb"
+require 'stringio'
 
 # Function for testing a preprocessor
 def test_preprocessor(preprocessor,input,expected)
