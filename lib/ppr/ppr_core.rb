@@ -197,7 +197,9 @@ class Macro
 
     # Update an exception +message+ to refer the macro invoked at line number
     # +i_number+ and adds a possible macro line +number+.
-    def e_message(message, i_number, number = nil)
+    def e_message(message, i_number, number = nil, line_content = nil, wrong_macro = nil)
+        puts "Error near #{line_content}" if line_content
+        puts "Wrong usage of macro near: #{wrong_macro}" if wrong_macro
         Macro.e_message(@name,message,i_number,number)
     end
 
@@ -814,7 +816,7 @@ class Preprocessor
                 if get_macro_def(line) then
                     # Yet, there is a begining of a macro definition: error
                     raise cur_macro.e_message(
-                      "cannot define a new macro within another macro.",@number)
+                        "cannot define a new macro within another macro.",@number, input.each_line.with_index.to_a[i-1][0], line)
                 end
                 # Is the current macro being closed?
                 if is_endm?(line) then
