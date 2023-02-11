@@ -626,6 +626,8 @@ class Preprocessor
         end
         case macro_type
         when @assign then
+            macro = Macro.new(name,@number,self,
+                *arguments,final: final,expand: @expand)            
             macro = Assign.new(name,@number,self,expand: @expand)
         when @loadm then
             macro = Load.new(@number,self,expand: @expand)
