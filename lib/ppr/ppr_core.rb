@@ -627,6 +627,8 @@ class Preprocessor
         add_line = nil
         case macro_type
         when @assign then
+            macro = Macro.new(name,@number,self,
+                *arguments,final: final,expand: @expand)            
             macro = Assign.new(name,@number,self,expand: @expand)
             mtype = ".assign"
             add_line = ".def " + name + " " + line
