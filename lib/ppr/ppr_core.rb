@@ -567,7 +567,7 @@ class Preprocessor
     end
 
     # Extract a macro definition from a +line+ if there is one.
-    def get_macro_def(line)
+    def get_macro_def(line, return_flag = false)
         line = line.strip
         # Locate and identify the macro keyword.
         macro_type = @macro_keys.find { |mdef| line.start_with?(mdef) }
@@ -623,9 +623,15 @@ class Preprocessor
             # Handle the case of unnamed macros.
             name = ""
         end
+        mtype = nil
+        add_line = nil
         case macro_type
         when @assign then
+            macro = Macro.new(name,@number,self,
+                *arguments,final: final,expand: @expand)            
             macro = Assign.new(name,@number,self,expand: @expand)
+            mtype = ".assign"
+            add_line = ".def " + name + " " + line
         when @loadm then
             macro = Load.new(@number,self,expand: @expand)
             macro.set_locations(@includes)
@@ -636,14 +642,18 @@ class Preprocessor
             macro = If.new(@number,self,expand: @expand)
         else
             macro = Macro.new(name,@number,self,
-                              *arguments,final: final,expand: @expand) 
+                              *arguments,final: final,expand: @expand)
         end
         # Is it a one-line macro?
         unless line.empty? then
             # Yes, adds the content to the macro.
             macro << line
         end
-        return macro
+        if return_flag then
+            return macro, mtype, add_line
+        else
+            return macro
+        end
     end
 
 
@@ -759,6 +769,7 @@ class Preprocessor
 
         # The macro currently being input.
         cur_macro = nil
+        cur_macro1 = nil
 
         # Process the input line by line
         input.each_line.with_index do |line,i|
@@ -830,12 +841,21 @@ class Preprocessor
             else
                 # There in no macro being input.
                 # Check if a new macro definition is present.
-                cur_macro = get_macro_def(line)
+                cur_macro, mtype, new_line = get_macro_def(line, return_flag = true)
                 if cur_macro and !cur_macro.empty? then
                     # This is a one-line macro close it straight await.
                     output << close_macro(cur_macro)
+                    
+                    # define macro when macro is assigned
+                    case mtype
+                    when @assign
+                        # The macro is an assignment.
+                        cur_macro1 = get_macro_def(new_line)
+                        output << close_macro(cur_macro1)
+                    end
                     # The macro ends here.
                     cur_macro = nil
+                    cur_marco1 = nil
                     next # The macro definition is not to be kept in the result
                 end
                 next if cur_macro # A new multi-line macro definition is found,
@@ -851,6 +871,14 @@ class Preprocessor
                 # Write the line to the output.
                 # print ">#{line}"
                 output << line
+                
+                # define macro when macro is assigned
+                case mtype
+                when @assign
+                    # The macro is an assignment.
+                    cur_macro1 = get_macro_def(new_line)
+                    output << close_macro(cur_macro1)
+                end
             end
         end
     end
